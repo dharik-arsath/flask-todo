@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  {% for todo in all_todo %}
+  <div class="card text-center m-lg-5 my-4"  id="todo-{{todo.id}}">
+    <div class="card-header">
+      Featured
+    </div>
+
+    <div class="card-body">
+      <h5 class="card-title"> {{todo.title}} </h5>
+      <p class="card-text"> {{todo.desc}} </p>
+
+      <a class="btn btn-danger   delete"    data-id = "todo-{{todo.id}}"> <i class="bi bi-trash px-4">    </i> </a>
+      <a class="btn btn-success  complete"  data-id = "todo-{{todo.id}}"> <i class="bi bi-check-lg px-4"> </i> </a>
+    </div>
+
+    <div class="card-footer text-muted">
+      {{todo.created_at.strftime('%d-%m-%Y %H:%M')}}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
