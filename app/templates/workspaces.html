@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% include "workspace_navbar.html" %}
+{% block title %} WorkSpace {% endblock %}
+
+
+{% block content %}
+
+<div class="container my-4 p-4">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for workspace in workspaces %}
+        <div class="col">
+            <div class="card h-100" style="width: 18rem;">
+                <div class="card-body">
+                    <h5 class="card-title">{{workspace.title}}</h5>
+                    <p class="card-text">{{workspace.desc}}</p>
+                    <a href={{workspace.url}} class="btn btn-dark my-sm-2">Go to Workspace</a>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">Last Updated : {{workspace.updated_at.strftime("%d-%m-%Y :
+                        %H:%M")}}</small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+<script src="{{ url_for('static', filename='js/workspace.js') }}"></script>
+{% endblock %}

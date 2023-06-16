@@ -1,29 +1,43 @@
+import datetime
+
 from sqlalchemy.orm import Session
 from flask import request
-from app.dao import Todo
+from app.dao import Todo, Workspace
 from app.dao import User
 from app.base.main import get_engine
-from app.dto.todo import TodoInfo
+from app.dto.todo import TodoInfo, WorkspaceInfo
+
+import logging
+
+todo_log = logging.getLogger("todo")
+todo_log.setLevel(logging.INFO)
+
+
 engine = get_engine()
 
 
 class TodoModel:
 
     def __fetch_todo(self, **kwargs):
+        todo_log.debug(f"got {kwargs}")
         with Session(engine) as session:
-            user = session.query(User).filter(User.username == kwargs.get("username")).first()
+            user        = session.query(User).filter(User.username == kwargs.get("username")).first()
+            workspace   = session.query(Workspace).filter(Workspace.title == kwargs.get("workspace")).first()
+
+            print(f"----------------- {user.id} and {workspace.id}")
             all_todo = (session.query(Todo).filter(
                 Todo.user == user,
-                Todo.is_completed == kwargs.get("completed")
+                Todo.is_completed == kwargs.get("completed"),
+                Todo.workspace == workspace.id
             ).order_by(Todo.created_at.desc())
                         )
         return all_todo
 
-    def fetch_completed_todo(self, username: str):
-        return self.__fetch_todo(username = username, completed=False)
+    def fetch_completed_todo(self, username: str, workspace: str):
+        return self.__fetch_todo(username = username, workspace=workspace, completed=False)
 
-    def fetch_incomplete_todo(self, username: str):
-        return self.__fetch_todo(username = username, completed=True)
+    def fetch_incomplete_todo(self, username: str, workspace: str):
+        return self.__fetch_todo(username = username, workspace = workspace, completed=True)
 
     def update_completed(self, update_status: bool, todo_id: int) -> bool:
         is_updated = False
@@ -41,11 +55,15 @@ class TodoModel:
         with Session(engine) as session:
             user_name = request.cookies.get("username")
 
-            user = session.query(User).filter(User.username == user_name ).first()
+            user        = session.query(User).filter(User.username == user_name ).first()
+            workspace   = session.query(Workspace).filter(Workspace.title == todo_info.workspace).first()
+
+            workspace.updated_at = datetime.datetime.now()
             todo = Todo(
                 title=todo_info.title,
                 desc=todo_info.description,
-                user = user
+                user = user,
+                workspace = workspace.id
             )
 
             session.add(todo)
@@ -55,7 +73,7 @@ class TodoModel:
 
         return is_created
 
-    def delete_todo(self, todo_id: int ) -> bool:
+    def delete_todo(self, todo_id: int, workspace_name: str ) -> bool:
         delete_status = False
         with Session(engine) as session:
             session.query(Todo).where(Todo.id == todo_id).delete()
@@ -63,3 +81,42 @@ class TodoModel:
             delete_status = True
 
         return delete_status
+
+
+class WorkspaceModel:
+    def add_workspace(self, workspace_info: WorkspaceInfo):
+        insert_status = False
+        with Session(engine) as session:
+            user = session.query(User).filter(User.username == workspace_info.user).first()
+
+            workspace = Workspace(
+                title=workspace_info.title,
+                desc=workspace_info.description,
+                url=workspace_info.url,
+                user_id=user.id,
+            )
+            session.add(workspace)
+            session.commit()
+
+            insert_status = True
+
+        return insert_status
+
+    def delete_workspace(self, username: str, workspace_name: str):
+        is_deleted = False
+        with Session(engine) as session:
+            user = session.query(User).filter(User.username == username).first()
+            print(f"{user.id}, {workspace_name}")
+            print(session.query(Workspace).where(Workspace.user_id == user.id, Workspace.title == workspace_name).first())
+            session.query(Workspace).where(Workspace.user_id == user.id, Workspace.title == workspace_name).delete()
+            session.commit()
+            is_deleted = True
+
+        return is_deleted
+
+    def get_all_workspaces(self, username: str):
+        with Session(engine) as session:
+            user = session.query(User).filter(User.username == username).first()
+            workspaces = session.query(Workspace).where(Workspace.user_id == user.id ).order_by(Workspace.updated_at.desc()).all()
+
+        return workspaces

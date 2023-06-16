@@ -1,6 +1,7 @@
 from app import create_app
 from app.user.user_views import validate_cookie
 
+
 app = create_app()
 
 

@@ -54,7 +54,7 @@ def signin():
     is_valid_credential = user_model.validate_user(user_info)
 
     if is_valid_credential:
-        resp = redirect("/list-available-todo")
+        resp = redirect("/workspaces")
         resp.set_cookie("username", username)
         session["username"] = username
 

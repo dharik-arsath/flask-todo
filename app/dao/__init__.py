@@ -7,13 +7,15 @@ from app.user.password_manager.main import PasswordGenerator
 from app.dao.todo import dao
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.types import DateTime, Boolean
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, func
 from typing import Optional
 import datetime
 
 engine      = get_engine()
 pass_gen    = PasswordGenerator()
 
+
+DEFAULT_DATETIME = datetime.datetime.now
 
 class Base(DeclarativeBase):
     pass
@@ -42,14 +44,25 @@ class Todo(Base):
     id              : Mapped[int]               = mapped_column(primary_key = True)
     title           : Mapped[str]               = mapped_column(String(60))
     desc            : Mapped[Optional[str] ]
-    # created_at      : Mapped[datetime]          = Column(DateTime, default=datetime.datetime.utcnow)
-    created_at      : Mapped[datetime]          = mapped_column(DateTime, default=datetime.datetime.now)
+    created_at      : Mapped[datetime]          = mapped_column(DateTime, default=DEFAULT_DATETIME)
     is_completed    : Mapped[bool]              = mapped_column(Boolean, default=False)
 
+    workspace       : Mapped[int]               = mapped_column(ForeignKey("Workspace.id"))
     user_id         : Mapped[int]               = mapped_column(ForeignKey("User.id"))
     user            : Mapped["User"]            = relationship(back_populates="todo")
 
 
+
+class Workspace(Base):
+    __tablename__ = "Workspace"
+
+    id              : Mapped[int]               = mapped_column(primary_key=True)
+    title           : Mapped[int]               = mapped_column(String(60), unique=True)
+    desc            : Mapped[Optional[str]]
+    url             : Mapped[str]               = mapped_column(String(150), unique=True)
+    created_at      : Mapped[datetime]          = mapped_column(DateTime, default=DEFAULT_DATETIME)
+    updated_at      : Mapped[datetime]          = mapped_column(DateTime, default=DEFAULT_DATETIME)
+    user_id         : Mapped[int]               = mapped_column(ForeignKey("User.id"))
 
 Base.metadata.create_all(engine)
 

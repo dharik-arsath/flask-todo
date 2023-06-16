@@ -2,9 +2,45 @@ var submit_btn = document.querySelector("#submit");
 const delete_btns = document.querySelectorAll(".delete");
 const completed_btns = document.querySelectorAll(".complete")
 const incomplete_btns = document.querySelectorAll(".incomplete")
+const del_workspace_btn = document.querySelector(".delete_workspace_btn")
 
 
-function create_todo(){
+function get_workspace(){
+    const url       = window.location;
+    const workspace = url.toString().split("/")[4]
+    
+    return workspace
+}
+
+
+
+function delete_workspace(){
+    const workspace  = get_workspace()
+
+    let data = new FormData()
+    data.append("workspace", workspace);
+
+
+    (async () => {
+        const POST_ROUTE = "/delete-workspace"  
+        const rawResponse = await fetch(POST_ROUTE, {
+          method: 'POST',
+          body: data
+        });
+
+        const content = await rawResponse.json();
+
+        if(content.status == 200){
+            window.location = "/workspaces/";
+        }
+        })();
+    }
+
+    del_workspace_btn.addEventListener("click", e => {
+        delete_workspace();  
+    })
+
+    function create_todo(){
     const modal = document.querySelector(".modal");
 
     const title = document.querySelector("#title").value.trim();
@@ -23,7 +59,11 @@ function create_todo(){
 
 
     (async () => {
-        const rawResponse = await fetch('/create-todo', {
+        const workspace = get_workspace() 
+
+        const POST_ROUTE  = "/workspaces/" + workspace + "/create-todo";
+
+        const rawResponse = await fetch(POST_ROUTE, {
           method: 'POST',
           body: data
         });
@@ -53,7 +93,9 @@ function delete_todo(todo_id){
     });
 
     (async () => {
-        const rawResponse = await fetch('/delete-todo', {
+        const workspace  = get_workspace()
+        const POST_ROUTE = "/workspaces/" + workspace + "/delete-todo"  
+        const rawResponse = await fetch(POST_ROUTE, {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
@@ -94,7 +136,9 @@ function complete_todo(todo_id){
     });
 
     (async () => {
-        const rawResponse = await fetch('/completed', {
+        const workspace = get_workspace()
+        const POST_ROUTE = "/workspaces/" + workspace + "/completed" 
+        const rawResponse = await fetch(POST_ROUTE, {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
@@ -132,7 +176,10 @@ function incomplete_todo(todo_id){
     });
 
     (async () => {
-        const rawResponse = await fetch('/incompleted', {
+        const workspace   = get_workspace()
+        const POST_ROUTE  = "/workspaces/" + workspace + "/incompleted"
+
+        const rawResponse = await fetch(POST_ROUTE, {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
