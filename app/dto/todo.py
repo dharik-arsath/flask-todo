@@ -11,4 +11,5 @@ class WorkspaceInfo:
     user        : str
     title       : str
     description : str
+    slug        : str
     url         : str

@@ -4,6 +4,8 @@ from flask import make_response, render_template, Response, request, jsonify
 from app.dto.todo import TodoInfo, WorkspaceInfo
 from app.todo.models import TodoModel, WorkspaceModel
 from . import todo_bp
+from app.utils.main import slugify
+
 
 todo_model = TodoModel()
 workspace_model = WorkspaceModel()
@@ -25,10 +27,11 @@ def create_workspace():
     title: str = request.form.get("title")
     desc: str = request.form.get("desc")
 
-    url       = f"/workspaces/{title}/list-available-todo"
+    slug       = slugify(title)
     username: str = request.cookies.get("username")
 
-    workspace = WorkspaceInfo(user=username, title=title, description=desc, url=url)
+    url = f"/workspaces/{slug}/list-available-todo"
+    workspace = WorkspaceInfo(user=username, title=title, description=desc, slug=slug, url=url)
     model = WorkspaceModel()
     is_added = model.add_workspace(workspace)
 
@@ -72,7 +75,7 @@ def list_todo(workspace_name: str):
     if username == "":
         return redirect("/signin")
 
-    all_todo = todo_model.fetch_completed_todo(username, workspace_name)
+    all_todo = todo_model.fetch_incomplete_todo(username, workspace_name)
     return render_template("list.html", all_todo = all_todo)
 
 
@@ -85,7 +88,7 @@ def list_completed_todo(workspace_name: str):
     if username == "":
         return redirect("/signin")
 
-    all_todo = todo_model.fetch_incomplete_todo(username, workspace_name)
+    all_todo = todo_model.fetch_completed_todo(username, workspace_name)
     return render_template("completed.html", all_todo = all_todo)
 
 

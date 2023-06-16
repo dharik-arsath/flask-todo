@@ -8,6 +8,10 @@ from app.dao.todo import dao
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.types import DateTime, Boolean
 from sqlalchemy import ForeignKey, func
+from app.utils.main import slugify as utils_slug
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import deferred
+
 from typing import Optional
 import datetime
 
@@ -59,10 +63,15 @@ class Workspace(Base):
     id              : Mapped[int]               = mapped_column(primary_key=True)
     title           : Mapped[int]               = mapped_column(String(60), unique=True)
     desc            : Mapped[Optional[str]]
-    url             : Mapped[str]               = mapped_column(String(150), unique=True)
+    url             : Mapped[str]               = mapped_column(String(200), unique=True)
+    slug            : Mapped[str]               = mapped_column(String(150), unique=True)
     created_at      : Mapped[datetime]          = mapped_column(DateTime, default=DEFAULT_DATETIME)
     updated_at      : Mapped[datetime]          = mapped_column(DateTime, default=DEFAULT_DATETIME)
     user_id         : Mapped[int]               = mapped_column(ForeignKey("User.id"))
+
+    @property
+    def title_slug(self):
+        return utils_slug(self.title)
 
 Base.metadata.create_all(engine)
 

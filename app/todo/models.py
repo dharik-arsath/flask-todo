@@ -6,8 +6,10 @@ from app.dao import Todo, Workspace
 from app.dao import User
 from app.base.main import get_engine
 from app.dto.todo import TodoInfo, WorkspaceInfo
-
+from app.utils.main import slugify
 import logging
+
+
 
 todo_log = logging.getLogger("todo")
 todo_log.setLevel(logging.INFO)
@@ -15,16 +17,14 @@ todo_log.setLevel(logging.INFO)
 
 engine = get_engine()
 
-
 class TodoModel:
 
     def __fetch_todo(self, **kwargs):
-        todo_log.debug(f"got {kwargs}")
+        print(f"----------------------------------------------------------------------------------------------------got {kwargs}")
         with Session(engine) as session:
             user        = session.query(User).filter(User.username == kwargs.get("username")).first()
-            workspace   = session.query(Workspace).filter(Workspace.title == kwargs.get("workspace")).first()
+            workspace   = session.query(Workspace).filter(Workspace.slug == kwargs.get("workspace")).first()
 
-            print(f"----------------- {user.id} and {workspace.id}")
             all_todo = (session.query(Todo).filter(
                 Todo.user == user,
                 Todo.is_completed == kwargs.get("completed"),
@@ -34,10 +34,10 @@ class TodoModel:
         return all_todo
 
     def fetch_completed_todo(self, username: str, workspace: str):
-        return self.__fetch_todo(username = username, workspace=workspace, completed=False)
+        return self.__fetch_todo(username = username, workspace=workspace, completed=True)
 
     def fetch_incomplete_todo(self, username: str, workspace: str):
-        return self.__fetch_todo(username = username, workspace = workspace, completed=True)
+        return self.__fetch_todo(username = username, workspace = workspace, completed=False)
 
     def update_completed(self, update_status: bool, todo_id: int) -> bool:
         is_updated = False
@@ -56,7 +56,7 @@ class TodoModel:
             user_name = request.cookies.get("username")
 
             user        = session.query(User).filter(User.username == user_name ).first()
-            workspace   = session.query(Workspace).filter(Workspace.title == todo_info.workspace).first()
+            workspace   = session.query(Workspace).filter(Workspace.slug == todo_info.workspace).first()
 
             workspace.updated_at = datetime.datetime.now()
             todo = Todo(
@@ -89,10 +89,12 @@ class WorkspaceModel:
         with Session(engine) as session:
             user = session.query(User).filter(User.username == workspace_info.user).first()
 
+            # TODO: ADD WORKSPACE TO ALL USERS, YOU ARE RESTRICTING WORKSPACE NAME TO ONLY ONE USER...
             workspace = Workspace(
                 title=workspace_info.title,
                 desc=workspace_info.description,
                 url=workspace_info.url,
+                slug = workspace_info.slug,
                 user_id=user.id,
             )
             session.add(workspace)
@@ -106,9 +108,8 @@ class WorkspaceModel:
         is_deleted = False
         with Session(engine) as session:
             user = session.query(User).filter(User.username == username).first()
-            print(f"{user.id}, {workspace_name}")
-            print(session.query(Workspace).where(Workspace.user_id == user.id, Workspace.title == workspace_name).first())
-            session.query(Workspace).where(Workspace.user_id == user.id, Workspace.title == workspace_name).delete()
+            print(session.query(Workspace).where(Workspace.user_id == user.id, Workspace.slug == workspace_name).first())
+            session.query(Workspace).where(Workspace.user_id == user.id, Workspace.slug == workspace_name).delete()
             session.commit()
             is_deleted = True
 
