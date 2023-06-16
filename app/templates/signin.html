@@ -1,20 +1,25 @@
-{% extends "base.html" %}
+{% extends "auth_base.html" %}
 {% block content %}
 
-<form action="signin" method="POST">
+<form action="signin" method="POST" class="my-5">
     <div class="mb-3">
+      {% if failed_auth %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          A simple danger alert—check it out!
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endif %}
       <label for="exampleInputEmail1" class="form-label">Email address</label>
-      <input type="email" class="form-control" id="exampleInputEmail1" name="username" aria-describedby="emailHelp">
+      <input type="email" class="form-control" id="exampleInputEmail1" name="username" aria-describedby="emailHelp" value="{{username}}">
       <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
     </div>
     <div class="mb-3">
       <label for="exampleInputPassword1" class="form-label">Password</label>
       <input type="password" class="form-control" id="exampleInputPassword1" name="password">
     </div>
-    <div class="mb-3 form-check">
-      <input type="checkbox" class="form-check-input" id="exampleCheck1">
-      <label class="form-check-label" for="exampleCheck1">Check me out</label>
+    <div class="mb-3">
+      <p> Not a user yet? try <a href="/signup"> sign up </a> now </p>
     </div>
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="submit" class="btn btn-primary" onload="trigger_btn">Submit</button>
 </form>
 {% endblock %}

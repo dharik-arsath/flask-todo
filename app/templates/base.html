@@ -40,11 +40,23 @@
 
                 <!-- Button trigger modal -->
                 <ul class="nav navbar-nav navbar-right">
-                    <div class="add_todo d-flex mx-5">
+                    <div class="add_todo d-flex mx-4">
                         <a class="btn btn-dark text-white" data-bs-toggle="modal" data-bs-target="#exampleModal"> <i
                                 class="bi bi-plus"></i>
                         </a>
                     </div>
+
+                    <div class="dropdown mx-4 px-lg-5">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-gear-wide"></i>
+                        </button>
+    
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                            <li class="nav-item px-2">
+                                <a class="dropdown-item nav-link" aria-current="page" href="/signout"> Signout </a>
+                            </li>
+                        </ul>
+                      </div>
                 </ul>
 
             </div>

@@ -1,6 +1,8 @@
 var submit_btn = document.querySelector("#submit");
 const delete_btns = document.querySelectorAll(".delete");
 const completed_btns = document.querySelectorAll(".complete")
+const incomplete_btns = document.querySelectorAll(".incomplete")
+
 
 function create_todo(){
     const modal = document.querySelector(".modal");
@@ -40,8 +42,9 @@ function create_todo(){
 }
 
 submit_btn.addEventListener("click", function () {
-    create_todo();    
-})
+        create_todo();    
+    }
+)    
 
 
 function delete_todo(todo_id){
@@ -62,7 +65,7 @@ function delete_todo(todo_id){
         const content = await rawResponse.json();
         
         if(content.todo_id == todo_id){
-            document.querySelector("#todo-"+todo_id).remove();
+            document.querySelector("#todo-"+todo_id.toString()).remove();
         }
       })();
 }
@@ -73,7 +76,7 @@ delete_btns.forEach(element => {
         const todo_full_id = element.getAttribute("data-id");
         let todo_id;
         if(todo_id !== null){
-            todo_id = todo_full_id.split("-")[1]
+            todo_id = parseInt(todo_full_id.split("-")[1])
         }
 
         delete_todo(todo_id);
@@ -103,7 +106,7 @@ function complete_todo(todo_id){
         const content = await rawResponse.json();
         
         if(content.todo_id == todo_id){
-            document.querySelector("#todo-"+todo_id).remove();
+            document.querySelector("#todo-"+todo_id.toString()).remove();
         }
       })();
 }
@@ -113,10 +116,48 @@ completed_btns.forEach(element => {
         const todo_full_id = element.getAttribute("data-id");
         let todo_id;
         if(todo_id !== null){
-            todo_id = todo_full_id.split("-")[1]
+            todo_id = parseInt( todo_full_id.split("-")[1] )
         }
 
         complete_todo(todo_id);
+    })
+
+})
+
+
+
+function incomplete_todo(todo_id){
+    const data    = JSON.stringify({
+        todo_id : todo_id
+    });
+
+    (async () => {
+        const rawResponse = await fetch('/incompleted', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: data
+        });
+
+        const content = await rawResponse.json();
+        
+        if(content.todo_id == todo_id){
+            document.querySelector("#todo-"+todo_id.toString()).remove();
+        }
+      })();
+}
+
+incomplete_btns.forEach(element => {
+    element.addEventListener("click", e => {
+        const todo_full_id = element.getAttribute("data-id");
+        let todo_id;
+        if(todo_id !== null){
+            todo_id = parseInt( todo_full_id.split("-")[1] )
+        }
+
+        incomplete_todo(todo_id);
     })
 
 })
@@ -137,3 +178,4 @@ completed_btns.forEach(element => {
 //     this.classList.add('active');
 //   });
 // });
+
