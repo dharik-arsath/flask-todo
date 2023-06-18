@@ -9,10 +9,11 @@
     </div>
 
     <div class="card-body">
-      <h5 class="card-title"> {{todo.title}} </h5>
-      <p class="card-text"> {{todo.desc}} </p>
+      <h5 class="card-title title"> {{todo.title}} </h5>
+      <p class="card-text description"> {{todo.desc}} </p>
 
       <a class="btn btn-danger   delete"    data-id = "todo-{{todo.id}}" data-bs-toggle="tooltip" title="remove"> <i class="bi bi-trash px-4">    </i> </a>
+      <a class="btn btn-info     edit"      data-id = "todo-{{todo.id}}" data-bs-toggle="modal" title="edit" data-bs-target="#exampleModal"> <i class="bi bi-pencil-fill px-4"> </i> </a>
       <a class="btn btn-success  complete"  data-id = "todo-{{todo.id}}" data-bs-toggle="tooltip" title="completed"> <i class="bi bi-check-lg px-4"> </i> </a>
     </div>
 

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from sqlalchemy.orm import Session
 
 from app.base.main import get_engine
-from app.dao import User
+from .dao import User
 
 engine = get_engine()
 from app.user.password_manager.main import PasswordGenerator

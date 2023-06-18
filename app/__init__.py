@@ -1,5 +1,7 @@
 from flask import Flask
+from app.base.main import get_engine, Base
 
+engine = get_engine()
 
 def create_app():
     app = Flask(__name__)
@@ -7,6 +9,7 @@ def create_app():
     from app.todo import todo_bp
     from app.user import users_bp
 
+    Base.metadata.create_all(engine)
     app.register_blueprint(todo_bp)
     app.register_blueprint(users_bp)
 

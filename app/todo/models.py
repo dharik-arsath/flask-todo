@@ -1,28 +1,20 @@
 import datetime
 
-from sqlalchemy.orm import Session
 from flask import request
-from app.dao import Todo, Workspace
-from app.dao import User
+from sqlalchemy.orm import Session
+
 from app.base.main import get_engine
-from app.dto.todo import TodoInfo, WorkspaceInfo
-from app.utils.main import slugify
-import logging
-
-
-
-todo_log = logging.getLogger("todo")
-todo_log.setLevel(logging.INFO)
-
+from .dao import Todo, Workspace
+from .dto import TodoInfo, WorkspaceInfo
+from app.user import dao
 
 engine = get_engine()
 
 class TodoModel:
-
     def __fetch_todo(self, **kwargs):
         print(f"----------------------------------------------------------------------------------------------------got {kwargs}")
         with Session(engine) as session:
-            user        = session.query(User).filter(User.username == kwargs.get("username")).first()
+            user        = session.query(dao.User).filter(dao.User.username == kwargs.get("username")).first()
             workspace   = session.query(Workspace).filter(Workspace.slug == kwargs.get("workspace")).first()
 
             all_todo = (session.query(Todo).filter(
@@ -55,7 +47,7 @@ class TodoModel:
         with Session(engine) as session:
             user_name = request.cookies.get("username")
 
-            user        = session.query(User).filter(User.username == user_name ).first()
+            user        = session.query(dao.User).filter(dao.User.username == user_name ).first()
             workspace   = session.query(Workspace).filter(Workspace.slug == todo_info.workspace).first()
 
             workspace.updated_at = datetime.datetime.now()
@@ -73,6 +65,24 @@ class TodoModel:
 
         return is_created
 
+
+    def update_todo(self, todo_info: TodoInfo) -> bool:
+        is_edited = False
+        print("----------------------------------update -todo -----------------------------")
+        with Session(engine) as session:
+            workspace   = session.query(Workspace).filter(Workspace.slug == todo_info.workspace).first()
+
+            todo = session.query(Todo).where(Todo.id == todo_info.id).first()
+            if todo is not None:
+                print
+                todo.title = todo_info.title
+                todo.desc  = todo_info.description
+                workspace.updated_at = datetime.datetime.now()
+                session.commit()
+                is_edited = True
+
+        return is_edited
+
     def delete_todo(self, todo_id: int, workspace_name: str ) -> bool:
         delete_status = False
         with Session(engine) as session:
@@ -87,7 +97,12 @@ class WorkspaceModel:
     def add_workspace(self, workspace_info: WorkspaceInfo):
         insert_status = False
         with Session(engine) as session:
-            user = session.query(User).filter(User.username == workspace_info.user).first()
+            user = session.query(dao.User).filter(dao.User.username == workspace_info.user).first()
+            workspace = session.query(Workspace).filter(Workspace.user_id == user.id, Workspace.title == workspace_info.title).first()
+
+            if workspace is not None:
+                insert_status = False
+                return insert_status
 
             # TODO: ADD WORKSPACE TO ALL USERS, YOU ARE RESTRICTING WORKSPACE NAME TO ONLY ONE USER...
             workspace = Workspace(
@@ -107,7 +122,7 @@ class WorkspaceModel:
     def delete_workspace(self, username: str, workspace_name: str):
         is_deleted = False
         with Session(engine) as session:
-            user = session.query(User).filter(User.username == username).first()
+            user = session.query(dao.User).filter(dao.User.username == username).first()
             print(session.query(Workspace).where(Workspace.user_id == user.id, Workspace.slug == workspace_name).first())
             session.query(Workspace).where(Workspace.user_id == user.id, Workspace.slug == workspace_name).delete()
             session.commit()
@@ -117,7 +132,7 @@ class WorkspaceModel:
 
     def get_all_workspaces(self, username: str):
         with Session(engine) as session:
-            user = session.query(User).filter(User.username == username).first()
+            user = session.query(dao.User).filter(dao.User.username == username).first()
             workspaces = session.query(Workspace).where(Workspace.user_id == user.id ).order_by(Workspace.updated_at.desc()).all()
 
         return workspaces

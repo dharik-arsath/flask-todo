@@ -5,7 +5,7 @@
     <div class="mb-3">
       {% if failed_auth %}
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-          A simple danger alert—check it out!
+          Invalid Credentials...
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
       {% endif %}
@@ -20,6 +20,6 @@
     <div class="mb-3">
       <p> Not a user yet? try <a href="/signup"> sign up </a> now </p>
     </div>
-    <button type="submit" class="btn btn-primary" onload="trigger_btn">Submit</button>
+    <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 {% endblock %}

@@ -5,6 +5,7 @@ class TodoInfo:
     title           : str
     description     : str
     workspace       : str
+    id              : int   = -1
 
 @dataclass
 class WorkspaceInfo:

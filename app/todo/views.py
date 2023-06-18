@@ -1,7 +1,7 @@
 from flask import g, redirect
 from flask import make_response, render_template, Response, request, jsonify
 
-from app.dto.todo import TodoInfo, WorkspaceInfo
+from .dto import TodoInfo, WorkspaceInfo
 from app.todo.models import TodoModel, WorkspaceModel
 from . import todo_bp
 from app.utils.main import slugify
@@ -146,6 +146,32 @@ def create_todo(workspace_name: str) -> Response:
 
     return resp
 
+
+
+
+@todo_bp.route("/workspaces/<string:workspace_name>/update-todo", methods = ["POST"])
+def update_todo(workspace_name: str) -> Response:
+    if g.is_logged_in is False:
+        return redirect("/signin")
+
+    title = request.form.get("title")
+    desc  = request.form.get("desc")
+    todo_id: int = int( request.form.get("todo-id") )
+    print(todo_id)
+    todo_info = TodoInfo( title = title, description = desc, workspace=workspace_name, id=todo_id )
+    print(todo_info)
+    insert_status = todo_model.update_todo(todo_info)
+    if insert_status is True:
+        status = 200
+    else:
+        status = 500
+
+    print(status)
+    resp = make_response(jsonify({
+        "status" : status
+    }))
+
+    return resp
 
 @todo_bp.route("/workspaces/<string:workspace_name>/delete-todo", methods=["POST"])
 def delete_todo(workspace_name: str):
