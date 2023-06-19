@@ -47,6 +47,7 @@ function create_todo() {
 
     const title = document.querySelector("#title").value.trim();
     const desc = document.querySelector("#desc").value.trim();
+    const priority = document.querySelector("#priority").value;
     var error_field = document.querySelector(".error");
 
     if (title.length == 0) {
@@ -58,7 +59,7 @@ function create_todo() {
     let data = new FormData()
     data.append("title", title);
     data.append("desc", desc);
-
+    data.append("priority", priority);
 
     (async () => {
         const workspace = get_workspace()

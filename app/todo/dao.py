@@ -2,7 +2,7 @@ import datetime
 from typing import Optional
 
 from sqlalchemy import ForeignKey
-from sqlalchemy import String
+from sqlalchemy import String, INT
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import DateTime, Boolean
 from app.base.main import Base, DEFAULT_DATETIME
@@ -15,6 +15,7 @@ class Todo(Base):
     id              : Mapped[int]               = mapped_column(primary_key = True)
     title           : Mapped[str]               = mapped_column(String(60))
     desc            : Mapped[Optional[str] ]
+    priority        : Mapped[int]               = mapped_column(INT, default=0)
 
     created_at      : Mapped[datetime]          = mapped_column(DateTime, default=DEFAULT_DATETIME)
     is_completed    : Mapped[bool]              = mapped_column(Boolean, default=False)

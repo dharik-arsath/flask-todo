@@ -5,6 +5,7 @@ class TodoInfo:
     title           : str
     description     : str
     workspace       : str
+    priority        : int
     id              : int   = -1
 
 @dataclass

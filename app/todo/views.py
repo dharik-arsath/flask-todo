@@ -75,7 +75,9 @@ def list_todo(workspace_name: str):
     if username == "":
         return redirect("/signin")
 
-    all_todo = todo_model.fetch_incomplete_todo(username, workspace_name)
+    priority: str = request.args.get("priority")
+
+    all_todo = todo_model.fetch_incomplete_todo(username, workspace_name, priority)
     return render_template("list.html", all_todo = all_todo)
 
 
@@ -128,10 +130,11 @@ def create_todo(workspace_name: str) -> Response:
     if g.is_logged_in is False:
         return redirect("/signin")
 
-    title = request.form.get("title")
-    desc  = request.form.get("desc")
+    title       = request.form.get("title")
+    desc        = request.form.get("desc")
+    priority    = int( request.form.get("priority") )
 
-    todo_info = TodoInfo( title = title, description = desc, workspace=workspace_name )
+    todo_info = TodoInfo( title = title, description = desc, workspace=workspace_name, priority = priority )
 
     insert_status = todo_model.create_todo(todo_info)
     if insert_status is True:
@@ -139,7 +142,6 @@ def create_todo(workspace_name: str) -> Response:
     else:
         status = 500
 
-    print(status)
     resp = make_response(jsonify({
         "status" : status
     }))

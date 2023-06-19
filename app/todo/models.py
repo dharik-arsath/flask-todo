@@ -16,20 +16,48 @@ class TodoModel:
         with Session(engine) as session:
             user        = session.query(dao.User).filter(dao.User.username == kwargs.get("username")).first()
             workspace   = session.query(Workspace).filter(Workspace.slug == kwargs.get("workspace")).first()
+            #
+            # all_todo = (session.query(Todo).filter(
+            #     Todo.user == user,
+            #     Todo.is_completed == kwargs.get("completed"),
+            #     Todo.workspace == workspace.id
+            # ).order_by(Todo.created_at.desc())
+            #             )
 
-            all_todo = (session.query(Todo).filter(
-                Todo.user == user,
-                Todo.is_completed == kwargs.get("completed"),
-                Todo.workspace == workspace.id
-            ).order_by(Todo.created_at.desc())
-                        )
+            priority: str | None = kwargs.get("priority")
+            if priority is not None:
+                priority = priority.lower()
+
+                if priority == "low":
+                    priority_id = 0
+                elif priority == "normal":
+                    priority_id = 1
+                elif priority == "high":
+                    priority_id = 2
+
+            if priority == "default" or priority is None:
+                all_todo = (session.query(Todo).filter(
+                    Todo.user == user,
+                    Todo.is_completed == kwargs.get("completed"),
+                    Todo.workspace == workspace.id
+                ).order_by(Todo.created_at.desc())
+                            )
+            else:
+                all_todo = (session.query(Todo).filter(
+                    Todo.user == user,
+                    Todo.workspace == workspace.id,
+                    Todo.is_completed == kwargs.get("completed"),
+                    Todo.priority == priority_id,
+                )
+                            )
+
         return all_todo
 
-    def fetch_completed_todo(self, username: str, workspace: str):
-        return self.__fetch_todo(username = username, workspace=workspace, completed=True)
+    def fetch_completed_todo(self, username: str, workspace: str, priority: str):
+        return self.__fetch_todo(username = username, workspace=workspace, completed=True, priority = priority)
 
-    def fetch_incomplete_todo(self, username: str, workspace: str):
-        return self.__fetch_todo(username = username, workspace = workspace, completed=False)
+    def fetch_incomplete_todo(self, username: str, workspace: str, priority: str):
+        return self.__fetch_todo(username = username, workspace = workspace, completed=False, priority = priority)
 
     def update_completed(self, update_status: bool, todo_id: int) -> bool:
         is_updated = False
@@ -50,14 +78,16 @@ class TodoModel:
             user        = session.query(dao.User).filter(dao.User.username == user_name ).first()
             workspace   = session.query(Workspace).filter(Workspace.slug == todo_info.workspace).first()
 
-            workspace.updated_at = datetime.datetime.now()
             todo = Todo(
                 title=todo_info.title,
                 desc=todo_info.description,
+                priority = todo_info.priority,
                 user = user,
                 workspace = workspace.id
             )
 
+
+            workspace.updated_at = datetime.datetime.now()
             session.add(todo)
 
             session.commit()
@@ -74,7 +104,6 @@ class TodoModel:
 
             todo = session.query(Todo).where(Todo.id == todo_info.id).first()
             if todo is not None:
-                print
                 todo.title = todo_info.title
                 todo.desc  = todo_info.description
                 workspace.updated_at = datetime.datetime.now()

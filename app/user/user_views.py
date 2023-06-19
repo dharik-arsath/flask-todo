@@ -20,16 +20,12 @@ def validate_cookie():
     cookie_username  = request.cookies.get("username")
     session_username = session.get("username")
 
-    print(cookie_username, session_username)
     g.is_logged_in = False
     if cookie_username is not None and session_username is not None:
-        print(f"checking {cookie_username == session_username}")
         if cookie_username == session_username:
             g.is_logged_in = True
-            print(g.is_logged_in)
     else:
         g.is_logged_in = False
-        print(g.is_logged_in)
 
 @users_bp.route("/signin", methods=["GET", "POST"])
 def signin():
