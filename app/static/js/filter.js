@@ -7,13 +7,22 @@ function filter_data(priority){
     });
 
     (async () => {
-
+        window.addEventListener('popstate', function(event) {
+            console.log("popping...")
+            if (event.state !== null) {
+                history.replaceState(null, null, '/workspaces/');
+                // Additional logic to handle the home page navigation
+              }
+          });
+          
         const workspace = get_workspace()
 
-        const ROUTE = "/workspaces/" + workspace + "/list-available-todo" + `?priority=${priority}`;
+        // const ROUTE = "/workspaces/" + workspace + "/list-available-todo" + `?priority=${priority}`;
+        const ROUTE = window.location.pathname + `?priority=${priority}`;
         console.log(ROUTE);
-
+        
         document.location = ROUTE;
+        history.pushState(null, null, ROUTE);
         // const rawResponse = await fetch(ROUTE, {
         //     method: 'GET',
         // });

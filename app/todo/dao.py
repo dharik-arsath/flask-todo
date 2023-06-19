@@ -18,8 +18,10 @@ class Todo(Base):
     priority        : Mapped[int]               = mapped_column(INT, default=0)
 
     created_at      : Mapped[datetime]          = mapped_column(DateTime, default=DEFAULT_DATETIME)
-    is_completed    : Mapped[bool]              = mapped_column(Boolean, default=False)
+    updated_at      : Mapped[datetime]          = mapped_column(DateTime, default=DEFAULT_DATETIME)
 
+    is_completed    : Mapped[bool]              = mapped_column(Boolean, default=False)
+    in_progress     : Mapped[bool]              = mapped_column(Boolean, default=False)
     workspace       : Mapped[int]               = mapped_column(ForeignKey("Workspace.id"))
     user_id         : Mapped[int]               = mapped_column(ForeignKey("User.id"))
     user            : Mapped["User"]            = relationship(back_populates="todo")

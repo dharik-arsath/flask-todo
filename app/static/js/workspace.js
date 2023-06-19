@@ -38,45 +38,4 @@ function create_workspace() {
     })();
 }
 
-workspace_btn.addEventListener("click", function () {
-    create_workspace();
-}
-)
-
-
-// function delete_workspace(workspace_id) {
-//     const data = JSON.stringify({
-//         workspace_id: workspace_id
-//     });
-
-//     (async () => {
-//         const rawResponse = await fetch('/delete-todo', {
-//             method: 'POST',
-//             headers: {
-//                 'Accept': 'application/json',
-//                 'Content-Type': 'application/json'
-//             },
-//             body: data
-//         });
-
-//         const content = await rawResponse.json();
-
-//         if (content.workspace_id == workspace_id) {
-//             document.querySelector("#todo-" + workspace_id.toString()).remove();
-//         }
-//     })();
-// }
-
-
-// delete_btns.forEach(element => {
-//     element.addEventListener("click", e => {
-//         const workspace_full_id = element.getAttribute("data-id");
-//         let workspace_id;
-//         if (workspace_id !== null) {
-//             workspace_id = parseInt(workspace_full_id.split("-")[1])
-//         }
-
-//         delete_workspace(workspace_id);
-//     })
-
-// })
+workspace_btn.addEventListener("click", create_workspace);

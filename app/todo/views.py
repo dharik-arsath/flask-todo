@@ -80,6 +80,22 @@ def list_todo(workspace_name: str):
     all_todo = todo_model.fetch_incomplete_todo(username, workspace_name, priority)
     return render_template("list.html", all_todo = all_todo)
 
+@todo_bp.route("/workspaces/<string:workspace_name>/list-inprogress-todo")
+def list_inprogress_todo(workspace_name: str):
+    if g.is_logged_in is False:
+        return redirect("/signin")
+
+    username: str = request.cookies.get("username")
+    priority: str = request.args.get("priority")
+
+    if username == "":
+        return redirect("/signin")
+
+    all_todo = todo_model.fetch_inprogress_todo(username, workspace_name, priority)
+    return render_template("inprogress.html", all_todo = all_todo)
+
+
+
 
 @todo_bp.route("/workspaces/<string:workspace_name>/list-completed-todo")
 def list_completed_todo(workspace_name: str):
@@ -90,33 +106,22 @@ def list_completed_todo(workspace_name: str):
     if username == "":
         return redirect("/signin")
 
-    all_todo = todo_model.fetch_completed_todo(username, workspace_name)
+    priority: str = request.args.get("priority")
+    all_todo = todo_model.fetch_completed_todo(username, workspace_name, priority)
     return render_template("completed.html", all_todo = all_todo)
 
 
-@todo_bp.route("/workspaces/<string:workspace_name>/completed", methods = ["POST"])
-def update_completed_todo(workspace_name: str):
+@todo_bp.route("/workspaces/<string:workspace_name>/update-completed", methods=["POST"])
+def update_completed(workspace_name: str):
     if g.is_logged_in is False:
         return redirect("/signin")
 
     todo_id: int    = request.json.get("todo_id")
-    is_updated      = todo_model.update_completed(update_status=True, todo_id = todo_id)
+    update_status: bool = request.json.get("update-status")
 
-    resp = make_response(jsonify({
-        "todo_id" : todo_id
-    }))
-
-    return resp
-
-
-@todo_bp.route("/workspaces/<string:workspace_name>/incompleted", methods=["POST"])
-def incompleted_todo(workspace_name: str):
-    if g.is_logged_in is False:
-        return redirect("/signin")
-
-    todo_id: int    = request.json.get("todo_id")
-    is_updated      = todo_model.update_completed(update_status=False, todo_id = todo_id    )
-
+    print("==========================================================================")
+    print(todo_id, update_status)
+    is_updated      = todo_model.update_completed(update_status=update_status, todo_id = todo_id )
     resp = make_response(jsonify({
         "todo_id" : todo_id
     }))
@@ -158,9 +163,16 @@ def update_todo(workspace_name: str) -> Response:
 
     title = request.form.get("title")
     desc  = request.form.get("desc")
+    priority: int | None = request.form.get("priority")
+    if priority is None:
+        priority = -1
+    else:
+        priority = int(priority)
+
     todo_id: int = int( request.form.get("todo-id") )
-    print(todo_id)
-    todo_info = TodoInfo( title = title, description = desc, workspace=workspace_name, id=todo_id )
+    #TODO: WILL DO LATER PRIORITY UPDATE...
+
+    todo_info = TodoInfo( title = title, description = desc, workspace=workspace_name, id=todo_id, priority = priority )
     print(todo_info)
     insert_status = todo_model.update_todo(todo_info)
     if insert_status is True:
@@ -186,4 +198,22 @@ def delete_todo(workspace_name: str):
 
     todo_model.delete_todo(todo_id, workspace_name)
     resp  = make_response(jsonify({"todo_id" : todo_id}))
+    return resp
+
+
+
+@todo_bp.route("/workspaces/<string:workspace_name>/update-inprogress", methods = ["POST"])
+def update_inprogress_todo(workspace_name: str) -> Response:
+    if g.is_logged_in is False:
+        return redirect("/signin")
+
+    todo_id: int = int( request.json.get("todo_id") )
+    progress_status: bool = request.json.get("inprogress")
+
+    status: bool = todo_model.update_inprogress(progress_status, todo_id, workspace_name)
+
+    resp = make_response(jsonify({
+        "todo_id" : todo_id
+    }))
+
     return resp

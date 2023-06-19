@@ -1,5 +1,7 @@
 from flask import Flask
 from app.base.main import get_engine, Base
+import os
+import time
 
 engine = get_engine()
 
@@ -13,6 +15,8 @@ def create_app():
     app.register_blueprint(todo_bp)
     app.register_blueprint(users_bp)
 
+    os.environ["TZ"] = "Asia/Kolkata"
+    time.tzset()
     return app
 
 

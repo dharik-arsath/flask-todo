@@ -1,7 +1,7 @@
 var submit_btn = document.querySelector("#submit");
 const delete_btns = document.querySelectorAll(".delete");
-const completed_btns = document.querySelectorAll(".complete")
-const incomplete_btns = document.querySelectorAll(".incomplete")
+const inprogress_btns = document.querySelectorAll(".inprogress")
+
 const del_workspace_btn = document.querySelector(".delete_workspace_btn")
 const edit_btn = document.querySelectorAll(".edit")
 
@@ -14,6 +14,15 @@ function get_workspace() {
 }
 
 
+function get_todo_id(element) {
+    const todo_full_id = element.getAttribute("data-id");
+    let todo_id;
+    if (todo_id !== null) {
+        todo_id = parseInt(todo_full_id.split("-")[1])
+    }
+
+    return todo_id;
+}
 
 function delete_workspace() {
     const workspace = get_workspace()
@@ -37,9 +46,7 @@ function delete_workspace() {
     })();
 }
 
-del_workspace_btn.addEventListener("click", e => {
-    delete_workspace();
-})
+del_workspace_btn.addEventListener("click", delete_workspace)
 
 
 function create_todo() {
@@ -84,10 +91,6 @@ function create_todo() {
     })();
 }
 
-// submit_btn.addEventListener("click", function () {
-//     create_todo();
-// }
-// )
 submit_btn.addEventListener("click", create_todo);
 
 
@@ -118,30 +121,23 @@ function delete_todo(todo_id) {
 
 
 delete_btns.forEach(element => {
-    element.addEventListener("click", e => {
-        const todo_full_id = element.getAttribute("data-id");
-        let todo_id;
-        if (todo_id !== null) {
-            todo_id = parseInt(todo_full_id.split("-")[1])
-        }
-
+    element.addEventListener("click", () => {
+        todo_id = get_todo_id(element)
         delete_todo(todo_id);
     })
 
 })
 
 
-
-
-
-function complete_todo(todo_id) {
+function update_inprogress(todo_id) {
     const data = JSON.stringify({
-        todo_id: todo_id
+        todo_id: todo_id,
+        "inprogress" : true
     });
 
     (async () => {
         const workspace = get_workspace()
-        const POST_ROUTE = "/workspaces/" + workspace + "/completed"
+        const POST_ROUTE = "/workspaces/" + workspace + "/update-inprogress"
         const rawResponse = await fetch(POST_ROUTE, {
             method: 'POST',
             headers: {
@@ -159,62 +155,15 @@ function complete_todo(todo_id) {
     })();
 }
 
-completed_btns.forEach(element => {
+inprogress_btns.forEach(element => {
     element.addEventListener("click", e => {
-        const todo_full_id = element.getAttribute("data-id");
-        let todo_id;
-        if (todo_id !== null) {
-            todo_id = parseInt(todo_full_id.split("-")[1])
-        }
+        const todo_id = get_todo_id(element);
 
-        complete_todo(todo_id);
+        console.log("calling in progerss.")
+        update_inprogress(todo_id);
     })
 
 })
-
-
-
-function incomplete_todo(todo_id) {
-    const data = JSON.stringify({
-        todo_id: todo_id
-    });
-
-    (async () => {
-        const workspace = get_workspace()
-        const POST_ROUTE = "/workspaces/" + workspace + "/incompleted"
-
-        const rawResponse = await fetch(POST_ROUTE, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: data
-        });
-
-        const content = await rawResponse.json();
-
-        if (content.todo_id == todo_id) {
-            document.querySelector("#todo-" + todo_id.toString()).remove();
-        }
-    })();
-}
-
-incomplete_btns.forEach(element => {
-    element.addEventListener("click", e => {
-        const todo_full_id = element.getAttribute("data-id");
-        let todo_id;
-        if (todo_id !== null) {
-            todo_id = parseInt(todo_full_id.split("-")[1])
-        }
-
-        incomplete_todo(todo_id);
-    })
-
-})
-
-
-
 
 
 function edit_todo(todo_id, element) {
@@ -247,32 +196,32 @@ function edit_todo(todo_id, element) {
         let data = new FormData()
         data.append("title", title);
         data.append("desc", desc);
-        data.append("todo-id", todo_id);    
+        data.append("todo-id", todo_id);
 
         (async () => {
             const workspace = get_workspace()
-    
+
             const POST_ROUTE = "/workspaces/" + workspace + "/update-todo";
-    
+
             const rawResponse = await fetch(POST_ROUTE, {
                 method: 'POST',
                 body: data
             });
-    
+
             const content = await rawResponse.json();
             if (content.status == 200) {
                 modal.classList.remove("show");
                 modal.classList.add("hide");
-    
+
                 var backdrop = document.getElementsByClassName('modal-backdrop')[0];
                 backdrop.parentNode.removeChild(backdrop);
-    
+
                 location.reload();
             }
         })();
 
         title.value = "";
-        desc.value  = "";
+        desc.value = "";
     })
 }
 
@@ -285,27 +234,8 @@ edit_btn.forEach(element => {
         if (todo_id !== null) {
             todo_id = parseInt(todo_full_id.split("-")[1])
         }
-        
+
         edit_todo(todo_id, element);
     })
 
 })
-
-
-
-// // Get all navbar links
-// var navbarLinks = document.querySelectorAll('.navbar-nav .nav-link');
-
-// // Add event listener to each link
-// navbarLinks.forEach(function(link) {
-//   link.addEventListener('click', function(event) {
-//     // Remove active class from all links
-//     navbarLinks.forEach(function(link) {
-//       link.classList.remove('active');
-//     });
-
-//     // Add active class to the clicked link
-//     this.classList.add('active');
-//   });
-// });
-

@@ -2,6 +2,14 @@
 {% include "navbar.html" %}
 {% block content %}
 <div class="container">
+  <div class="filter mx-4" id="filter" style="float: right;">
+    <button class="btn btn-warning" id="default">default</button>
+    <button class="btn btn-dark" id="high">High</button>
+    <button class="btn btn-info" id="normal">Normal</button>
+    <button class="btn btn-secondary" id="low">Low</button>
+  </div>
+
+  <br>
   {% for todo in all_todo %}
   <div class="card text-center m-lg-5 my-4"  id="todo-{{todo.id}}">
     <div class="card-header">
@@ -13,7 +21,7 @@
       <p class="card-text"> {{todo.desc}} </p>
 
       <a class="btn btn-danger   delete"    data-id = "todo-{{todo.id}}"data-bs-toggle="tooltip" title="remove from list"> <i class="bi bi-trash px-4">    </i> </a>
-      <a class="btn btn-dark  incomplete"  data-id = "todo-{{todo.id}}" data-bs-toggle="tooltip" title="not yet completed"> <i class="bi bi-x-lg px-4"> </i> </a>
+      <a class="btn btn-dark     back_to_inprogress"  data-id = "todo-{{todo.id}}" data-bs-toggle="tooltip" title="not yet completed"> <i class="bi bi-arrow-return-left px-4"></i> </a>
       
     </div>
 
@@ -24,6 +32,7 @@
   </div>
   {% endfor %}
 
-  <script src="{{ url_for('static', filename='js/src.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/completed.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/filter.js') }}"></script>
 </div>
 {% endblock %}

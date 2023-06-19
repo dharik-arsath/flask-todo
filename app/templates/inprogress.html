@@ -21,10 +21,8 @@
       <h5 class="card-title title"> {{todo.title}} </h5>
       <p class="card-text description"> {{todo.desc}} </p>
 
-      <a class="btn btn-danger   delete"     data-id = "todo-{{todo.id}}" data-bs-toggle="tooltip" title="remove"> <i class="bi bi-trash px-4">    </i> </a>
-      <a class="btn btn-info     edit"       data-id = "todo-{{todo.id}}" data-bs-toggle="modal" title="edit" data-bs-target="#exampleModal"> <i class="bi bi-pencil-fill px-4"> </i> </a>
-      <a class="btn btn-dark     inprogress" data-id = "todo-{{todo.id}}" data-bs-toggle="tooltip" title="In Progress"> <i class="bi bi-arrow-return-right px-4"></i></a>
-      <!-- <i class="bi bi-check2-all"></i> -->
+      <a class="btn btn-dark     back_to_available"       data-id = "todo-{{todo.id}}" data-bs-toggle="tooltip" title="Back to incomplete" data-bs-target="#exampleModal"> <i class="bi bi-arrow-return-left px-4"></i> </a>
+      <a class="btn btn-success  complete" data-id = "todo-{{todo.id}}" data-bs-toggle="tooltip" title="Completed"> <i class="bi bi-check2-all px-4"></i>  </a>
     </div>
 
     <div class="card-footer text-muted">
@@ -33,7 +31,7 @@
   </div>
   {% endfor %}
 
-  <script src="{{ url_for('static', filename='js/src.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/inprogress.js') }}"></script>
   <script src="{{ url_for('static', filename='js/filter.js') }}"></script>
 </div>
 {% endblock %}
